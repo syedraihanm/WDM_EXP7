@@ -1,5 +1,5 @@
 ### EX7 Implementation of Link Analysis using HITS Algorithm
-### DATE: 
+### DATE: 22.08.26
 ### AIM: To implement Link Analysis using HITS Algorithm in Python.
 ### Description:
 <div align = "justify">
@@ -42,50 +42,65 @@ def hits_algorithm(adjacency_matrix, max_iterations=100, tol=1.0e-6):
     authority_scores = np.ones(num_nodes)
     hub_scores = np.ones(num_nodes)
     
-    for i in range(max_iterations):
-        # Authority update
+    for _ in range(max_iterations):
+        # Authority update: sum of incoming hubs
+        new_authority = np.dot(adjacency_matrix.T, hub_scores)
+        new_authority /= np.linalg.norm(new_authority, ord=2)
 
-             /*WRITE YOUR CODE HERE
+        # Hub update: sum of outgoing authorities
+        new_hub = np.dot(adjacency_matrix, new_authority)
+        new_hub /= np.linalg.norm(new_hub, ord=2)
+
+        # Convergence check
+        authority_diff = np.linalg.norm(new_authority - authority_scores, ord=2)
+        hub_diff = np.linalg.norm(new_hub - hub_scores, ord=2)
         
-        # Hub update
-
-             /*WRITE YOUR CODE HERE
-        
-        # Check convergence
-
-             /*WRITE YOUR CODE HERE
+        authority_scores, hub_scores = new_authority, new_hub
         
         if authority_diff < tol and hub_diff < tol:
             break
-        
-        authority_scores = new_authority_scores
-        hub_scores = new_hub_scores
-    
+            
     return authority_scores, hub_scores
 
-# Example adjacency matrix (replace this with your own data)
-# For simplicity, using a random adjacency matrix
+# 4-node directed adjacency matrix
+# Row i represents directed edges from Node i -> Node j
 adj_matrix = np.array([
-    [0, 1, 1],
-    [1, 0, 0],
-    [1, 0, 0]
+    [0, 1, 1, 0],  
+    [0, 0, 1, 1],  
+    [0, 0, 0, 1],  
+    [1, 0, 0, 0]   
 ])
 
 # Run HITS algorithm
 authority, hub = hits_algorithm(adj_matrix)
+
+# Print initial node scores
 for i in range(len(authority)):
     print(f"Node {i}: Authority Score = {authority[i]:.4f}, Hub Score = {hub[i]:.4f}")
 
-# bar chart of authority vs hub scores
+# Print Hub rankings (descending order without mutating the score arrays)
+hub_ranking = np.argsort(hub)[::-1]
+print("\nRanking based on Hub Scores:")
+for rank, node_idx in enumerate(hub_ranking, 1):
+    print(f"Rank {rank}: Node {node_idx} (Score = {hub[node_idx]:.4f})")
 
+# Print Authority rankings (descending order)
+auth_ranking = np.argsort(authority)[::-1]
+print("\nRanking based on Authority Scores:")
+for rank, node_idx in enumerate(auth_ranking, 1):
+    print(f"Rank {rank}: Node {node_idx} (Score = {authority[node_idx]:.4f})")
+
+# Bar chart visualization
 nodes = np.arange(len(authority))
 bar_width = 0.35
-plt.figure(figsize=(8, 6))
-plt.bar(nodes - bar_width/2, authority, bar_width, label='Authority', color='blue')
-plt.bar(nodes + bar_width/2, hub, bar_width, label='Hub', color='green')
+
+plt.figure(figsize=(8, 5))
+plt.bar(nodes - bar_width/2, authority, bar_width, label='Authority', color='royalblue')
+plt.bar(nodes + bar_width/2, hub, bar_width, label='Hub', color='forestgreen')
+
 plt.xlabel('Node')
-plt.ylabel('Scores')
-plt.title('Authority and Hub Scores for Each Node')
+plt.ylabel('Scores (L2-Normalized)')
+plt.title('HITS Algorithm: Authority vs Hub Scores (4 Nodes)')
 plt.xticks(nodes, [f'Node {i}' for i in nodes])
 plt.legend()
 plt.tight_layout()
@@ -93,5 +108,9 @@ plt.show()
 ```
 
 ### Output:
+<img width="1306" height="499" alt="Screenshot 2026-08-22 155224" src="https://github.com/user-attachments/assets/1d4bfcc2-e6aa-4158-aaf9-6ea8b94dc9ff" />
+
 
 ### Result:
+
+Thus the implement Link Analysis using HITS Algorithm in Python was successful
